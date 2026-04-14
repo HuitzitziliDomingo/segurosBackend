@@ -8,6 +8,14 @@ export declare class AuthController {
         message: string;
     }>;
     login(loginDto: LoginDto): Promise<{
+        message: string;
+        requires_2fa: boolean;
+        email: string;
+    }>;
+    verify2FA(body: {
+        email: string;
+        code: string;
+    }): Promise<{
         access_token: string;
     }>;
 }

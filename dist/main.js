@@ -23,6 +23,18 @@ async function bootstrap() {
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
     swagger_1.SwaggerModule.setup('api', app, document);
+    const { Transport } = await Promise.resolve().then(() => require('@nestjs/microservices'));
+    app.connectMicroservice({
+        transport: Transport.RMQ,
+        options: {
+            urls: [process.env.RABBITMQ_URL || 'amqp://guest:guest@localhost:5672'],
+            queue: process.env.RABBITMQ_VERIFICATION_SERVICE_QUEUE || 'verification_queue',
+            queueOptions: {
+                durable: true,
+            },
+        },
+    });
+    await app.startAllMicroservices();
     await app.listen(process.env.PORT ?? 4000);
 }
 bootstrap();

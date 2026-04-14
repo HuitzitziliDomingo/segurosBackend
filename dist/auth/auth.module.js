@@ -16,6 +16,7 @@ const jwt_1 = require("@nestjs/jwt");
 const passport_1 = require("@nestjs/passport");
 const jwt_strategy_1 = require("./jwt.strategy");
 const auth_guard_1 = require("./auth.guard");
+const rabbitmq_module_1 = require("../common/rabbitmq/rabbitmq.module");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -28,6 +29,7 @@ exports.AuthModule = AuthModule = __decorate([
                 secret: process.env.JWT_SECRET || 'your-secret-key',
                 signOptions: { expiresIn: '1h' },
             }),
+            rabbitmq_module_1.RabbitMQModule.register({ name: 'VERIFICATION_SERVICE' }),
         ],
         controllers: [auth_controller_1.AuthController],
         providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, auth_guard_1.JwtAuthGuard],

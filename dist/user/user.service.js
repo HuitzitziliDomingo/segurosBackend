@@ -24,7 +24,9 @@ let UserService = class UserService {
         this.userRepository = userRepository;
     }
     async create(createUserDto) {
-        const userExist = await this.userRepository.findOne({ where: { email: createUserDto.email } });
+        const userExist = await this.userRepository.findOne({
+            where: { email: createUserDto.email },
+        });
         if (userExist)
             throw new common_2.HttpException({
                 statusCode: common_2.HttpStatus.CONFLICT,
@@ -42,7 +44,7 @@ let UserService = class UserService {
         return await this.userRepository.find();
     }
     async findOne(id) {
-        let user = await this.userRepository.findOne({ where: { id } });
+        const user = await this.userRepository.findOne({ where: { id } });
         if (!user)
             throw new common_2.HttpException({
                 statusCode: common_2.HttpStatus.NOT_FOUND,
@@ -56,7 +58,7 @@ let UserService = class UserService {
         return await this.userRepository.findOneBy({ id });
     }
     async remove(id) {
-        let userToDelete = await this.userRepository.findOne({ where: { id } });
+        const userToDelete = await this.userRepository.findOne({ where: { id } });
         if (!userToDelete)
             throw new common_2.HttpException({
                 statusCode: common_2.HttpStatus.NOT_FOUND,
@@ -65,7 +67,7 @@ let UserService = class UserService {
             }, common_2.HttpStatus.NOT_FOUND);
         return {
             responseSuccess: await this.userRepository.delete(id),
-            message: 'Se elimino correctamente'
+            message: 'Se elimino correctamente',
         };
     }
 };

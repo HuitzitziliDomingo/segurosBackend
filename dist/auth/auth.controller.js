@@ -29,6 +29,9 @@ let AuthController = class AuthController {
     async login(loginDto) {
         return this.authService.login(loginDto);
     }
+    async verify2FA(body) {
+        return this.authService.verify2FA(body.email, body.code);
+    }
 };
 exports.AuthController = AuthController;
 __decorate([
@@ -45,14 +48,28 @@ __decorate([
 __decorate([
     (0, common_1.Post)('login'),
     (0, auth_decorator_1.Public)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Iniciar sesión' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Inicio de sesión exitoso' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Iniciar sesión (Paso 1, requiere 2FA)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Se requiere comprobación 2FA' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Credenciales inválidas' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [login_dto_1.LoginDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
+__decorate([
+    (0, common_1.Post)('verify-2fa'),
+    (0, auth_decorator_1.Public)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Verificar código 2FA (Paso 2, retorna JWT)' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Verificación exitosa, token generado',
+    }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Código inválido o expirado' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "verify2FA", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('auth'),
     (0, common_1.Controller)('auth'),

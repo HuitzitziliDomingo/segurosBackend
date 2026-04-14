@@ -18,15 +18,20 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const bcrypt = require("bcrypt");
 const jwt_1 = require("@nestjs/jwt");
+const microservices_1 = require("@nestjs/microservices");
+const rxjs_1 = require("rxjs");
 const auth_entity_1 = require("./entities/auth.entity");
 let AuthService = class AuthService {
-    constructor(authRepository, jwtService) {
+    constructor(authRepository, jwtService, verificationClient) {
         this.authRepository = authRepository;
         this.jwtService = jwtService;
+        this.verificationClient = verificationClient;
     }
     async register(registerDto) {
         const { email, password, telephone } = registerDto;
-        const existingUser = await this.authRepository.findOne({ where: { email } });
+        const existingUser = await this.authRepository.findOne({
+            where: { email },
+        });
         if (existingUser) {
             throw new common_1.UnauthorizedException('El usuario ya existe');
         }
@@ -49,6 +54,26 @@ let AuthService = class AuthService {
         if (!isPasswordValid) {
             throw new common_1.UnauthorizedException('Credenciales inválidas');
         }
+        const genResult = await (0, rxjs_1.lastValueFrom)(this.verificationClient.send('generate-2fa', user.email).pipe((0, rxjs_1.timeout)(5000), (0, rxjs_1.catchError)(() => (0, rxjs_1.throwError)(() => new common_1.InternalServerErrorException('Servicio 2FA no disponible. Intente más tarde.')))));
+        this.verificationClient.emit('send-email-2fa', {
+            email: user.email,
+            code: genResult.code,
+        });
+        return {
+            message: 'Requisitos 2FA generados. Te enviamos un código temporal por correo.',
+            requires_2fa: true,
+            email: user.email,
+        };
+    }
+    async verify2FA(email, code) {
+        const response = await (0, rxjs_1.lastValueFrom)(this.verificationClient.send('validate-2fa', { email, code }).pipe((0, rxjs_1.timeout)(5000), (0, rxjs_1.catchError)(() => (0, rxjs_1.throwError)(() => new common_1.InternalServerErrorException('Servicio 2FA no disponible. Intente más tarde.')))));
+        if (!response || !response.valid) {
+            throw new common_1.UnauthorizedException('El código OTP es inválido o ha expirado');
+        }
+        const user = await this.authRepository.findOne({ where: { email } });
+        if (!user) {
+            throw new common_1.UnauthorizedException('Usuario no encontrado tras validación');
+        }
         const payload = { email: user.email, sub: user.id };
         const access_token = this.jwtService.sign(payload);
         return { access_token };
@@ -61,7 +86,9 @@ exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(auth_entity_1.Auth)),
+    __param(2, (0, common_1.Inject)('VERIFICATION_SERVICE')),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        jwt_1.JwtService])
+        jwt_1.JwtService,
+        microservices_1.ClientProxy])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

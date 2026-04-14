@@ -1,69 +1,80 @@
-import { Injectable } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
-import { CreateUserDto } from './dto/create-user.dto'
-import { UpdateUserDto } from './dto/update-user.dto'
-import { User } from './entities/user.entity'
-import { HttpException, HttpStatus } from '@nestjs/common'
-import * as bcrypt from 'bcrypt'
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
+import { HttpException, HttpStatus } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const userExist = await this.userRepository.findOne({ where: { email: createUserDto.email } })
+    const userExist = await this.userRepository.findOne({
+      where: { email: createUserDto.email },
+    });
     if (userExist)
-      throw new HttpException({
-        statusCode: HttpStatus.CONFLICT,
-        message: 'El correo electronico ya existe',
-        error: 'CONFLICT',
-      }, HttpStatus.CONFLICT)
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.CONFLICT,
+          message: 'El correo electronico ya existe',
+          error: 'CONFLICT',
+        },
+        HttpStatus.CONFLICT,
+      );
 
     // Encriptar la contraseña antes de guardar el usuario
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10)
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     const newUser = {
       ...createUserDto,
       password: hashedPassword,
-    }
+    };
 
-    return await this.userRepository.save(newUser)
+    return await this.userRepository.save(newUser);
   }
 
   async findAll() {
-    return await this.userRepository.find()
+    return await this.userRepository.find();
   }
 
   async findOne(id: number) {
-    let user = await this.userRepository.findOne({ where: { id } })
+    const user = await this.userRepository.findOne({ where: { id } });
     if (!user)
-      throw new HttpException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'El usuario no fue encontrado',
-        error: 'NOT_FOUND',
-      }, HttpStatus.NOT_FOUND)
-    return await this.userRepository.findOneBy({ id })
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'El usuario no fue encontrado',
+          error: 'NOT_FOUND',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    return await this.userRepository.findOneBy({ id });
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    await this.userRepository.update(id, updateUserDto)
-    return await this.userRepository.findOneBy({ id })
+    await this.userRepository.update(id, updateUserDto);
+    return await this.userRepository.findOneBy({ id });
   }
 
   async remove(id: number) {
-    let userToDelete = await this.userRepository.findOne({ where: { id } })
+    const userToDelete = await this.userRepository.findOne({ where: { id } });
     if (!userToDelete)
-      throw new HttpException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'No se encontro usuario para eliminar.',
-        error: 'NOT_FOUND',
-      }, HttpStatus.NOT_FOUND)
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'No se encontro usuario para eliminar.',
+          error: 'NOT_FOUND',
+        },
+        HttpStatus.NOT_FOUND,
+      );
 
     return {
       responseSuccess: await this.userRepository.delete(id),
-      message: 'Se elimino correctamente'
-    }
+      message: 'Se elimino correctamente',
+    };
   }
 }

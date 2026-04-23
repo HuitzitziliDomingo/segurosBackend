@@ -4,11 +4,13 @@ WORKDIR /app
 
 COPY package.json .
 
+RUN pnpm run build
+
 RUN pnpm install
 
 COPY . .
 
-RUN pnpm run build
+
 
 EXPOSE 4000
 

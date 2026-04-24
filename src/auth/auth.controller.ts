@@ -21,10 +21,22 @@ export class AuthController {
 
   @Post('login')
   @Public()
-  @ApiOperation({ summary: 'Iniciar sesión' })
-  @ApiResponse({ status: 200, description: 'Inicio de sesión exitoso' })
+  @ApiOperation({ summary: 'Iniciar sesión (Paso 1, requiere 2FA)' })
+  @ApiResponse({ status: 200, description: 'Se requiere comprobación 2FA' })
   @ApiResponse({ status: 401, description: 'Credenciales inválidas' })
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
+  }
+
+  @Post('verify-2fa')
+  @Public()
+  @ApiOperation({ summary: 'Verificar código 2FA (Paso 2, retorna JWT)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Verificación exitosa, token generado',
+  })
+  @ApiResponse({ status: 401, description: 'Código inválido o expirado' })
+  async verify2FA(@Body() body: { email: string; code: string }) {
+    return this.authService.verify2FA(body.email, body.code);
   }
 }

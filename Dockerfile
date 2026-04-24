@@ -1,15 +1,19 @@
-FROM node:24.14.0-alpine
+FROM node:24-alpine
+
+
 
 WORKDIR /app
 
-COPY package.json .
 
-RUN pnpm install
+RUN npm install
 
+# 3. Copiar el resto del código
 COPY . .
 
-RUN pnpm run build
+# 4. Buildear la app
+RUN npm run build
 
 EXPOSE 4000
 
-CMD [ "pnpm" "start" ]
+# 5. Sintaxis correcta del CMD (comas entre argumentos)
+CMD ["npm", "start"]

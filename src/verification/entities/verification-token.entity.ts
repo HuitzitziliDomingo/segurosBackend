@@ -4,26 +4,21 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  Unique,
 } from 'typeorm';
 
-@Entity('users')
-@Unique(['email'])
-export class User {
+@Entity('verification_tokens')
+export class VerificationToken {
   @PrimaryGeneratedColumn('increment')
   id: number;
-
-  @Column({ type: 'uuid', default: () => 'gen_random_uuid()' })
-  uuid: string;
 
   @Column({ type: 'varchar', length: 255 })
   email: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  password: string;
+  @Column({ type: 'varchar', length: 10 })
+  code: string;
 
-  @Column({ type: 'bigint', nullable: true })
-  telephone: bigint | null;
+  @Column({ type: 'timestamp' })
+  expiresAt: Date;
 
   @CreateDateColumn()
   createdAt: Date;

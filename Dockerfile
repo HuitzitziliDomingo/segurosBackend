@@ -2,10 +2,9 @@ FROM node:24-alpine
 
 WORKDIR /app
 
-# Solo package.json por ahora
 COPY package.json ./
 
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 COPY . .
 

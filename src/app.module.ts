@@ -23,6 +23,12 @@ import { VerificationModule } from './verification/verification.module';
       autoLoadEntities: true,
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV !== 'production',
+      ssl: true,
+      extra: {
+        ssl: {
+          rejectUnauthorized: false,
+        }
+      },
     }),
     UserModule,
     AuthModule,
@@ -31,4 +37,4 @@ import { VerificationModule } from './verification/verification.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

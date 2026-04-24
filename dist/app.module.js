@@ -35,6 +35,12 @@ exports.AppModule = AppModule = __decorate([
                 autoLoadEntities: true,
                 synchronize: process.env.NODE_ENV !== 'production',
                 logging: process.env.NODE_ENV !== 'production',
+                ssl: true,
+                extra: {
+                    ssl: {
+                        rejectUnauthorized: false,
+                    }
+                },
             }),
             user_module_1.UserModule,
             auth_module_1.AuthModule,

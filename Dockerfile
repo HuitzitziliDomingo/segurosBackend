@@ -2,8 +2,8 @@ FROM node:24-alpine
 
 WORKDIR /app
 
-# 👇 Esto faltaba — copiar package.json primero
-COPY package.json package-lock.json ./
+# Solo package.json por ahora
+COPY package.json ./
 
 RUN npm install
 
